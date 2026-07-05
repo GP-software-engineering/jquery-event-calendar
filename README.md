@@ -1,4 +1,4 @@
-# 📅 jQuery Event Calendar (v2.0.1)
+# 📅 jQuery Event Calendar (v2.0.2)
 
 [![npm version](https://img.shields.io/npm/v/@gpsoftware/jquery-event-calendar.svg?color=blue)](https://www.npmjs.com/package/@gpsoftware/jquery-event-calendar)
 [![npm downloads](https://img.shields.io/npm/dt/@gpsoftware/jquery-event-calendar.svg)](https://www.npmjs.com/package/@gpsoftware/jquery-event-calendar)
