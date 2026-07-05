@@ -1,10 +1,9 @@
-# 📅 jQuery Event Calendar (v2.0.0)
+# 📅 jQuery Event Calendar (v2.0.1)
 
-[![npm version](https://img.shields.io/npm/v/jquery-event-calendar-modern.svg?color=blue)](https://www.npmjs.com/package/jquery-event-calendar-modern)
-[![npm downloads](https://img.shields.io/npm/dt/jquery-event-calendar-modern.svg)](https://www.npmjs.com/package/jquery-event-calendar-modern)
+[![npm version](https://img.shields.io/npm/v/@gpsoftware/jquery-event-calendar.svg?color=blue)](https://www.npmjs.com/package/@gpsoftware/jquery-event-calendar)
+[![npm downloads](https://img.shields.io/npm/dt/@gpsoftware/jquery-event-calendar.svg)](https://www.npmjs.com/package/@gpsoftware/jquery-event-calendar)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen.svg)](https://GP-software-engineering.github.io/jquery-event-calendar-modern/examples/index.html)
 
 > A robust, lightweight, and fully responsive Event Calendar plugin for jQuery. 
 Originally branched from v0.7 by Jaime Fernandez, this plugin has been completely refactored in modern TypeScript using Object-Oriented Programming principles to ensure ease of testing, and maintenance.
@@ -25,7 +24,7 @@ Originally branched from v0.7 by Jaime Fernandez, this plugin has been completel
 You can install the package via NPM:
 
 ```bash
-npm install jquery-event-calendar-modern
+npm install @gpsoftware/jquery-event-calendar
 ```
 
 or you can include the plugin by grabbing the compiled JavaScript from the `/dist` folder.

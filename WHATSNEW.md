@@ -1,5 +1,10 @@
-# What's New in v2.0.0
+# What's New in v2.0.2
+Setup CI/CD workflow and bump version to 2.0.2.
 
+# What's New in v2.0.1
+Just renamed the package to include the organization.
+
+# What's New in v2.0.0
 Version 2.0.0 is a massive architectural overhaul of the jQuery Event Calendar plugin. While the external API and DOM outputs remain strictly 100% isofunctional with previous versions to ensure backward compatibility, the internal engine has been completely rebuilt.
 
 ### 🚀 Major Highlights
