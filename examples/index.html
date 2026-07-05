@@ -3,233 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>jQuery Event Calendar - Examples</title>
-    
-    <link rel="stylesheet" href="../dist/css/eventCalendar.css">
+    <title>jQuery Event Calendar - Demo</title>
     
     <style>
-        /* Base page styling */
         :root {
-            --page-bg: #f4f6f9;
-            --page-text: #333;
-            --box-bg: #fff;
-            --heading-color: #138da5;
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --header-bg: #fff;
+            --header-border: #eee;
+            --card-bg: #fff;
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            --select-border: #ccc;
+            --toolbar-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1c1d;
+                --text-color: #e4e6eb;
+                --header-bg: #242526;
+                --header-border: #333;
+                --card-bg: #242526;
+                --card-shadow: 0 4px 15px rgba(0,0,0,0.15);
+                --select-border: #555;
+                --toolbar-bg: rgba(36, 37, 38, 0.95);
+            }
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: var(--page-bg);
-            color: var(--page-text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
-            padding: 40px 20px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* MANUAL DARK MODE OVERRIDES 
-           We inject these specific variables to force Dark Mode 
-           on the page and on the calendars without changing the OS settings.
-        */
-        body.force-dark {
-            --page-bg: #121212;
-            --page-text: #e0e0e0;
-            --box-bg: #1e1e1e;
-            --heading-color: #5bc0de;
-            
-            /* Overriding Plugin CSS Variables manually */
-            --ec-bg-color: #1e1e1e;
-            --ec-text-color: #d4d4d4;
-            --ec-border-color: #444444;
-            --ec-shadow-color: rgba(0, 0, 0, 0.8);
-            --ec-title-bg: #0f6a7d;
-            --ec-title-text: #ffffff;
-            --ec-grid-bg: #2d2d2d;
-            --ec-grid-border: #444444;
-            --ec-grid-header-text: #a0a0a0;
-            --ec-day-text: #e0e0e0;
-            --ec-day-bg-hover: #3d3d3d;
-            --ec-empty-day-bg: #252525;
-            --ec-today-bg: #0056b3;
-            --ec-event-bg: #d39e00;
-            --ec-list-bg: #1e1e1e;
-            --ec-event-title-color: #5bc0de;
-            --ec-no-events-bg: #333333;
-            --ec-btn-bg: #526d0c;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        h1 { text-align: center; color: var(--heading-color); margin-bottom: 20px; }
-        h2 { border-bottom: 2px solid var(--heading-color); padding-bottom: 10px; margin-top: 50px; }
-        
-        .demo-box {
-            background: var(--box-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            transition: background-color 0.3s;
-        }
-
-        .calendar-grid {
-            display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;
-        }
-        .calendar-column { flex: 1; min-width: 300px; }
-
-        /* Toolbar Styling */
-        .theme-switcher {
-            background: var(--box-bg);
-            padding: 15px;
-            border-radius: 8px;
+            padding: 0;
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--header-border);
+        }
+
+        h1, h2 { margin: 0; padding: 0; }
+        h1 { font-size: 24px; color: var(--text-color); }
+        h2 { font-size: 16px; color: #666; font-weight: normal; margin-top: 5px; }
+
+        .toolbar {
+            position: sticky;
+            top: 0;
+            background-color: var(--toolbar-bg);
+            border-bottom: 1px solid var(--header-border);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        .lang-switcher, .theme-switcher {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--select-border);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 14px;
+            cursor: pointer;
         }
 
         .theme-switcher button {
-            padding: 8px 16px;
+            background: none;
+            border: none;
             cursor: pointer;
-            border: 1px solid var(--ec-border-color);
-            background: var(--page-bg);
-            color: var(--page-text);
-            border-radius: 4px;
-            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.2s;
         }
         
         .theme-switcher button:hover {
-            opacity: 0.8;
+            background-color: rgba(128,128,128, 0.1);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px;
+        }
+
+        .demo-content {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #single-calendar {
+            border: none; /* Let the demo content container handle the border/shadow */
         }
     </style>
+    
+    <link rel="stylesheet" href="../dist/css/eventCalendar.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
-<div class="container">
-    <h1>jQuery Event Calendar Demonstration</h1>
+    <header>
+        <h1>jQuery Event Calendar</h1>
+        <h2>Demo</h2>
+    </header>
 
-    <div class="theme-switcher">
-        <strong>Try CSS Variables & Dark Mode:</strong>
-        <button id="btn-toggle-dark">Toggle Dark Mode</button>
-        <button id="btn-color-purple" style="border-left: 2px solid #6f42c1;">Make Theme Purple</button>
-        <button id="btn-color-reset">Reset Theme</button>
-    </div>
-
-    <h2>1. Single Calendar Instance</h2>
-    <div class="demo-box">
-        <p>This section displays a standard single calendar instance with custom dynamically generated events.</p>
-        <div id="single-calendar"></div>
-    </div>
-
-    <h2>2. Multiple Isolated Instances (Side by Side)</h2>
-    <p>Thanks to the new Object-Oriented class architecture, multiple calendars can coexist on the same page with isolated states and completely different datasets without any conflict.</p>
-    
-    <div class="calendar-grid">
-        <div class="calendar-column">
-            <div class="demo-box">
-                <h3>Track Days Schedule</h3>
-                <div id="multi-calendar-1"></div>
-            </div>
+    <div class="toolbar">
+        <div class="lang-switcher">
+            <label for="lang-switcher">Language:</label>
+            <select id="lang-switcher">
+                <option value="en" selected>English</option>
+                <option value="it-IT">Italiano</option>
+                <option value="es-ES">Español</option>
+                <option value="fr-FR">Français</option>
+                <option value="de-DE">Deutsch</option>
+                <option value="pt-PT">Português</option>
+                <option value="zh-CN">简体中文</option>
+            </select>
         </div>
         
-        <div class="calendar-column">
-            <div class="demo-box">
-                <h3>Driving Courses Schedule</h3>
-                <div id="multi-calendar-2"></div>
-            </div>
+        <div class="theme-switcher">
+            <button id="theme-light"><i class="fa-solid fa-sun"></i></button>
+            <button id="theme-dark"><i class="fa-solid fa-moon"></i></button>
         </div>
     </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
-<script src="../dist/umd/jquery.eventCalendar.js"></script>
+    <main>
+        <div class="demo-content">
+            <div id="single-calendar"></div>
+        </div>
+    </main>
 
-<script>
-$(document).ready(function() {
-        // ====================================================================
-        // THEME SWITCHER LOGIC
-        // ====================================================================
-        $('#btn-toggle-dark').on('click', function() {
-            // Check explicit override first, then fallback to OS preference
-            let currentTheme = document.documentElement.getAttribute('data-theme');
-            if (!currentTheme) {
-                currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            }
-            
-            // Toggle theme and enforce it globally via data attribute
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            
-            // Toggle styles for the demo page background
-            $('body').toggleClass('force-dark', newTheme === 'dark');
-        });
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+    
+    <script src="../dist/umd/jquery.eventCalendar.js"></script>
 
-        $('#btn-color-purple').on('click', function() {
-            document.documentElement.style.setProperty('--ec-title-bg', '#6f42c1');
-            document.documentElement.style.setProperty('--ec-event-title-color', '#6f42c1');
-            document.documentElement.style.setProperty('--ec-today-bg', '#dc3545');
-        });
-
-        $('#btn-color-reset').on('click', function() {
-            document.documentElement.style.removeProperty('--ec-title-bg');
-            document.documentElement.style.removeProperty('--ec-event-title-color');
-            document.documentElement.style.removeProperty('--ec-today-bg');
-        });
-
-        // ====================================================================
-        // DYNAMIC EVENT GENERATION
-        // ====================================================================
-        const threeDaysAgo = moment().subtract(3, 'days').format('YYYY-MM-DD 10:00:00');
-        const yesterday    = moment().subtract(1, 'days').format('YYYY-MM-DD 15:30:00');
-        const today        = moment().format('YYYY-MM-DD 12:00:00');
-        const tomorrow     = moment().add(1, 'days').format('YYYY-MM-DD 09:00:00');
-        const nextWeek     = moment().add(5, 'days').format('YYYY-MM-DD 16:00:00');
-
+    <script>
+        // Sample events data
         const mainEvents = [
-            { date: threeDaysAgo, title: "Past Track Day Session", description: "This event happened 3 days ago.", isLocked: true },
-            { date: today, title: "Current Maintenance Window", description: "Today's ongoing circuit operations.", isSpecial: true },
-            { date: tomorrow, title: "Upcoming Advanced Driving Course", description: "Registration opens tomorrow morning." },
-            { date: nextWeek, title: "Exclusive Supercar Rally", description: "Future special track event.", isSpecial: true }
+            {
+                date: moment().format('YYYY-MM-DD'),
+                title: 'Riunione Team',
+                description: 'Discussione sull\'architettura della nuova release. (TS & CSS updates)'
+            },
+            {
+                date: moment().add(1, 'days').format('YYYY-MM-DD'),
+                title: 'Compleanno Marco',
+                description: 'Tutto il giorno. Ricordarsi il regalo!',
+                isLocked: true
+            },
+            {
+                date: moment().add(2, 'days').format('YYYY-MM-DD'),
+                title: 'Rilascio v2.0.4 - Localizzazioni',
+                description: 'Rilascio ufficiale su NPM delle nuove lingue.',
+                url: 'https://www.gpsoftware.it/projects/jquery-event-calendar/',
+                target: '_blank'
+            }
         ];
 
-        const trackEvents = [
-            { date: yesterday, title: "Motorcycle Free Practice", description: "Yesterday's open pit-lane session for bikes." },
-            { date: tomorrow, title: "Private GT3 Practice", description: "High-speed future event testing session.", isLocked: true }
-        ];
-
-        const courseEvents = [
-            { date: threeDaysAgo, title: "Basic Safety Briefing", description: "Introductory classroom session held 3 days ago." },
-            { date: today, title: "Drift Control Masterclass", description: "Live drifting course running on the wet track today!", isSpecial: true },
-            { date: nextWeek, title: "Pro Racing License Exam", description: "Official theoretical and practical evaluation.", isLocked: false }
-        ];
-
-        // ====================================================================
-        // PLUGINS INITIALIZATION
-        // ====================================================================
-        $('#single-calendar').eventCalendar({
-            jsonData: mainEvents,
-            jsonDateFormat: 'human',
-            showDescription: true
+        // 1. Theme switching logic
+        $('#theme-light').on('click', () => {
+            document.documentElement.style.setProperty('--bg-color', '#f4f7f6');
+            document.documentElement.style.setProperty('--text-color', '#333');
+            document.documentElement.style.setProperty('--header-bg', '#fff');
+            document.documentElement.style.setProperty('--toolbar-bg', 'rgba(255, 255, 255, 0.95)');
         });
 
-        $('#multi-calendar-1').eventCalendar({
-            jsonData: trackEvents,
-            jsonDateFormat: 'human',
-            showDescription: false,
-            onlyOneDescription: true
+        $('#theme-dark').on('click', () => {
+            document.documentElement.style.setProperty('--bg-color', '#1a1c1d');
+            document.documentElement.style.setProperty('--text-color', '#e4e6eb');
+            document.documentElement.style.setProperty('--header-bg', '#242526');
+            document.documentElement.style.setProperty('--toolbar-bg', 'rgba(36, 37, 38, 0.95)');
         });
 
-        $('#multi-calendar-2').eventCalendar({
-            jsonData: courseEvents,
-            jsonDateFormat: 'human',
-            showDescription: false,
-            onlyOneDescription: true
+        // 2. Initial Plugin Call (English default)
+        $(document).ready(function() {
+            $('#single-calendar').eventCalendar({
+                jsonData: mainEvents,
+                showDescription: true,
+                startWeekOnMonday: true,
+                localeKey: 'en',
+                eventsScrollable: true
+            });
         });
-    });
-</script>
+
+        // 3. I18N Dynamic Switcher Logic
+        $('#lang-switcher').on('change', function() {
+            const locale = $(this).val();
+
+            // Destroy existing instances to prevent duplicates
+            $('#single-calendar').empty().removeData('plugin_eventCalendar');
+
+            if (locale === 'en') {
+                // Fallback to default English
+                $('#single-calendar').eventCalendar({
+                    jsonData: mainEvents,
+                    showDescription: true,
+                    localeKey: 'en',
+                    startWeekOnMonday: true,
+                    eventsScrollable: true
+                });
+                return;
+            }
+
+            // Load the localized script dynamically from dist/locales
+            $.getScript(`../dist/locales/${locale}.js`, function() {
+                // Access the specific locale key inside the global window object
+                const localizedConfig = window.eventCalendar_i18n[locale];
+                
+                if (!localizedConfig) {
+                    console.error(`Locale configuration not found for ${locale}`);
+                    return;
+                }
+
+                $('#single-calendar').eventCalendar({
+                    jsonData: mainEvents,
+                    localeKey: locale,
+                    i18n: localizedConfig,
+                    showDescription: true,
+                    startWeekOnMonday: true,
+                    eventsScrollable: true
+                });
+            }).fail(function() {
+                console.error(`Error loading locale script: ../dist/locales/${locale}.js`);
+            });
+        });
+    </script>
 </body>
 </html>

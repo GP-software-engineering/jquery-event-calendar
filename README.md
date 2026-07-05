@@ -49,6 +49,28 @@ You can use the pre-compiled CSS from the `dist/css` folder, or import the SCSS 
 <link rel="stylesheet" href="dist/css/eventCalendar.css">
 ```
 
+🌍 **Internationalization (i18n)**
+
+jQuery Event Calendar comes with built-in support for localization. The package includes translation files in the `dist/lcales/` directory.
+
+To use a different language, include the localized script *after* the main plugin script and pass it into the configuration:
+
+```html
+<script src="dist/umd/jquery.eventCalendar.js"></script>
+<script src="dist/locales/it-IT.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $("#calendar-wrapper").eventCalendar({
+      jsonData: myEvents,
+      // Pass the specific locale key and the i18n object loaded in the window
+      localeKey: 'it-IT',
+      i18n: window.eventCalendar_i18n['it-IT']
+    });
+  });
+</script>
+```
+
 ## 🛠️ Quick Start
 
 Initialize the calendar by targeting an empty `<div>` and passing your options.

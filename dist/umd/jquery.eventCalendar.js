@@ -1,7 +1,7 @@
 "use strict";
 /*!
     jquery.eventCalendar.js
-    version: 2.0.0
+    version: 2.0.3
     author: Gianpiero Caretti (@gpcaretti) / Refactored
     company: GP software engineering
     url: https://www.gpsoftware.it
@@ -36,6 +36,24 @@ class EventCalendarInstance {
      * Bootstraps the application by rendering the DOM and fetching events.
      */
     init() {
+        var _a;
+        // Register moment.js locale dynamically if i18n object is provided
+        if (this.options.localeKey) {
+            const localeName = this.options.localeKey.toLowerCase();
+            if ((_a = this.options.i18n) === null || _a === void 0 ? void 0 : _a.moment) {
+                // Check if the locale has already been loaded in Moment.js
+                const loadedLocales = typeof moment.locales === 'function' ? moment.locales() : [];
+                if (loadedLocales.indexOf(localeName) >= 0 && typeof moment.updateLocale === 'function') {
+                    moment.updateLocale(localeName, this.options.i18n.moment);
+                }
+                else {
+                    moment.defineLocale(localeName, this.options.i18n.moment);
+                }
+            }
+            else {
+                moment.locale(localeName);
+            }
+        }
         this.buildDOMStructure();
         this.attachEventListeners();
         // Calculate dynamic width to handle slide animations properly
@@ -211,10 +229,29 @@ class EventCalendarInstance {
         }
     }
     /**
+     * Updates the subtitle text based on the current view state (monthly vs daily events).
+     */
+    updateSubtitle() {
+        var _a, _b, _c;
+        const $subtitle = this.$wrap.find('.eventCalendar-subtitle');
+        if (this.state.direction === 'day') {
+            const dateObj = new Date(this.state.year, this.state.month, this.state.day);
+            const dateStr = moment(dateObj).format('LL');
+            const prevTxt = ((_a = this.options.i18n) === null || _a === void 0 ? void 0 : _a.txt_SpecificEvents_prev) || "";
+            const afterTxt = ((_b = this.options.i18n) === null || _b === void 0 ? void 0 : _b.txt_SpecificEvents_after) || "events:";
+            $subtitle.text(`${prevTxt} ${dateStr} ${afterTxt}`);
+        }
+        else {
+            const nextTxt = ((_c = this.options.i18n) === null || _c === void 0 ? void 0 : _c.txt_NextEvents) || "Next events:";
+            $subtitle.text(nextTxt);
+        }
+    }
+    /**
      * Fetches events via AJAX or reads from the local array and triggers rendering.
      */
     fetchAndRenderEvents() {
         this.$wrap.find('.eventCalendar-loading').fadeIn();
+        this.updateSubtitle();
         if (typeof this.options.jsonData === "string") {
             // Check cache before performing a new AJAX request
             if (!this.options.cacheJson || !this.cachedEvents) {
@@ -223,7 +260,11 @@ class EventCalendarInstance {
                     this.cachedEvents = data;
                     this.renderEventsList(data);
                 })
-                    .fail(() => this.$wrap.find('.eventCalendar-loading').text("Error loading events").addClass("error"));
+                    .fail(() => {
+                    var _a;
+                    const errorTxt = ((_a = this.options.i18n) === null || _a === void 0 ? void 0 : _a.txt_errorLoading) || "Error loading events";
+                    this.$wrap.find('.eventCalendar-loading').text(errorTxt).addClass("error");
+                });
             }
             else {
                 this.renderEventsList(this.cachedEvents);
@@ -280,7 +321,7 @@ const pluginFn = function (options) {
 pluginFn.options = {
     jsonData: [],
     eventsLimit: 4,
-    localeKey: "en-US",
+    localeKey: "en",
     showTimeOfEvent: true,
     showDayAsWeeks: true,
     showDescription: false,

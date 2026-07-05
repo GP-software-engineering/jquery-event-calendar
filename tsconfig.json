@@ -14,5 +14,6 @@
     "lib": ["DOM", "ES2015", "ES2022"],
     "types": ["jquery"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["src/i18n/**/*"]
 }

@@ -1,6 +1,6 @@
 /*!
     jquery.eventCalendar.js
-    version: 2.0.0
+    version: 2.0.3
     author: Gianpiero Caretti (@gpcaretti) / Refactored
     company: GP software engineering
     url: https://www.gpsoftware.it
@@ -43,6 +43,7 @@ declare namespace EventCalendar {
         txt_NextEvents: string;
         txt_GoToEventUrl: string;
         txt_loading: string;
+        txt_errorLoading?: string;
         txt_undefinedDate: string;
         moment?: any;
     }
@@ -162,6 +163,10 @@ declare class EventCalendarInstance {
      * @param monthOrDirection Direction to render relative to the current state.
      */
     private renderMonth;
+    /**
+     * Updates the subtitle text based on the current view state (monthly vs daily events).
+     */
+    private updateSubtitle;
     /**
      * Fetches events via AJAX or reads from the local array and triggers rendering.
      */

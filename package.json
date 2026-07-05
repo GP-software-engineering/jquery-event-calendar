@@ -1,6 +1,6 @@
 {
   "name": "@gpsoftware/jquery-event-calendar",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A modern, lightweight and fully responsive Event Calendar plugin for jQuery",
   "main": "dist/umd/jquery.eventCalendar.js",
   "module": "dist/esm/jquery.eventCalendar.js",
@@ -19,7 +19,9 @@
     "build:umd": "tsc -p tsconfig.json",
     "minify:umd": "terser dist/umd/jquery.eventCalendar.js -o dist/umd/jquery.eventCalendar.min.js -c -m",
     "build:esm": "tsc -p tsconfig.esm.json",
-    "build": "npm-run-all clean build:css build:umd minify:umd build:esm",
+    "build:locales": "tsc -p tsconfig.locales.json",
+    "copy:docs": "node -e \"require('fs').copyFileSync('src/umd-info.txt', 'dist/umd/README.txt'); require('fs').copyFileSync('src/esm-info.txt', 'dist/esm/README.txt');\"",
+    "build": "npm-run-all clean build:css build:umd minify:umd build:esm build:locales copy:docs",
     "test": "jest",
     "watch": "tsc -w"
   },

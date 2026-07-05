@@ -1,6 +1,6 @@
 /*!
     jquery.eventCalendar.js
-    version: 2.0.0
+    version: 2.0.3
     author: Gianpiero Caretti (@gpcaretti) / Refactored
     company: GP software engineering
     url: https://www.gpsoftware.it
@@ -46,6 +46,7 @@ namespace EventCalendar {
         txt_NextEvents: string;
         txt_GoToEventUrl: string;
         txt_loading: string;
+        txt_errorLoading?: string;
         txt_undefinedDate: string;
         moment?: any;
     }
@@ -167,6 +168,23 @@ class EventCalendarInstance {
      * Bootstraps the application by rendering the DOM and fetching events.
      */
     private init(): void {
+        // Register moment.js locale dynamically if i18n object is provided
+        if (this.options.localeKey) {
+            const localeName = this.options.localeKey.toLowerCase();
+            
+            if (this.options.i18n?.moment) {
+                // Check if the locale has already been loaded in Moment.js
+                const loadedLocales = typeof moment.locales === 'function' ? moment.locales() : [];
+                if (loadedLocales.indexOf(localeName) >= 0 && typeof moment.updateLocale === 'function') {
+                    moment.updateLocale(localeName, this.options.i18n.moment);
+                } else {
+                    moment.defineLocale(localeName, this.options.i18n.moment);
+                }
+            } else {
+                moment.locale(localeName);
+            }
+        }
+
         this.buildDOMStructure();
         this.attachEventListeners();
         
@@ -177,7 +195,7 @@ class EventCalendarInstance {
         this.renderMonth("current");
         this.fetchAndRenderEvents();
     }
-
+	
     /**
      * Constructs the main HTML skeleton inside the wrapper element.
      */
@@ -369,10 +387,29 @@ class EventCalendarInstance {
     }
 
     /**
+     * Updates the subtitle text based on the current view state (monthly vs daily events).
+     */
+    private updateSubtitle(): void {
+        const $subtitle = this.$wrap.find('.eventCalendar-subtitle');
+        
+        if (this.state.direction === 'day') {
+            const dateObj = new Date(this.state.year, this.state.month, this.state.day);
+            const dateStr = moment(dateObj).format('LL');
+            const prevTxt = this.options.i18n?.txt_SpecificEvents_prev || "";
+            const afterTxt = this.options.i18n?.txt_SpecificEvents_after || "events:";
+            $subtitle.text(`${prevTxt} ${dateStr} ${afterTxt}`);
+        } else {
+            const nextTxt = this.options.i18n?.txt_NextEvents || "Next events:";
+            $subtitle.text(nextTxt);
+        }
+    }
+
+    /**
      * Fetches events via AJAX or reads from the local array and triggers rendering.
      */
     private fetchAndRenderEvents(): void {
         this.$wrap.find('.eventCalendar-loading').fadeIn();
+        this.updateSubtitle();
 
         if (typeof this.options.jsonData === "string") {
             // Check cache before performing a new AJAX request
@@ -382,7 +419,10 @@ class EventCalendarInstance {
                         this.cachedEvents = data;
                         this.renderEventsList(data);
                     })
-                    .fail(() => this.$wrap.find('.eventCalendar-loading').text("Error loading events").addClass("error"));
+                    .fail(() => {
+                        const errorTxt = this.options.i18n?.txt_errorLoading || "Error loading events";
+                        this.$wrap.find('.eventCalendar-loading').text(errorTxt).addClass("error");
+                    });
             } else {
                 this.renderEventsList(this.cachedEvents);
             }
@@ -446,7 +486,7 @@ const pluginFn = function(this: JQuery, options?: EventCalendar.IEventCalendarOp
 pluginFn.options = {
     jsonData: [],
     eventsLimit: 4,
-    localeKey: "en-US",
+    localeKey: "en",
     showTimeOfEvent: true,
     showDayAsWeeks: true,
     showDescription: false,
