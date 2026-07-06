@@ -1,11 +1,14 @@
 {
   "name": "@gpsoftware/jquery-event-calendar",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "A modern, lightweight and fully responsive Event Calendar plugin for jQuery",
   "main": "dist/umd/jquery.eventCalendar.js",
   "module": "dist/esm/jquery.eventCalendar.js",
   "types": "dist/umd/jquery.eventCalendar.d.ts",
-  "files": ["dist", "README.md" ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "peerDependencies": {
     "jquery": ">=3.0.0",
     "moment": ">=2.0.0"
@@ -14,16 +17,18 @@
     "test": "tests"
   },
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf dist docs",
     "build:css": "sass src/scss/eventCalendar.scss dist/css/eventCalendar.css --style compressed",
-    "build:umd": "tsc -p tsconfig.json",
-    "minify:umd": "terser dist/umd/jquery.eventCalendar.js -o dist/umd/jquery.eventCalendar.min.js -c -m",
-    "build:esm": "tsc -p tsconfig.esm.json",
-    "build:locales": "tsc -p tsconfig.locales.json",
+    "build:types": "tsc --emitDeclarationOnly -p tsconfig.json",
+    "build:umd": "esbuild src/jquery.eventCalendar.ts --bundle --outfile=dist/umd/jquery.eventCalendar.js --format=iife --external:jquery --external:moment",
+    "minify:umd": "esbuild src/jquery.eventCalendar.ts --bundle --outfile=dist/umd/jquery.eventCalendar.min.js --format=iife --minify --external:jquery --external:moment",
+    "build:esm": "esbuild src/jquery.eventCalendar.ts --bundle --outfile=dist/esm/jquery.eventCalendar.js --format=esm --external:jquery --external:moment",
+    "build:locales": "esbuild src/i18n/*.ts --bundle --minify --outdir=dist/locales",
     "copy:docs": "node -e \"require('fs').copyFileSync('src/umd-info.txt', 'dist/umd/README.txt'); require('fs').copyFileSync('src/esm-info.txt', 'dist/esm/README.txt');\"",
-    "build": "npm-run-all clean build:css build:umd minify:umd build:esm build:locales copy:docs",
+    "build": "npm-run-all clean build:css build:types build:umd minify:umd build:esm build:locales copy:docs",
+    "build:docs": "typedoc && node -e \"const fs = require('fs'); fs.cpSync('examples', 'docs/examples', { recursive: true }); fs.cpSync('dist', 'docs/dist', { recursive: true });\"",
     "test": "jest",
-    "watch": "tsc -w"
+    "watch": "esbuild src/jquery.eventCalendar.ts --bundle --outfile=dist/umd/jquery.eventCalendar.js --format=iife --external:jquery --external:moment --watch"
   },
   "keywords": [
     "jquery",
@@ -39,6 +44,7 @@
     "@types/jest": "^30.0.0",
     "@types/jquery": "^4.0.1",
     "@types/node": "^26.1.0",
+    "esbuild": "^0.28.1",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "jquery": "^4.0.0",
@@ -46,8 +52,8 @@
     "npm-run-all": "^4.1.5",
     "rimraf": "^5.0.0",
     "sass": "^1.101.0",
-    "terser": "^5.48.0",
     "ts-jest": "^29.4.11",
+    "typedoc": "^0.28.20",
     "typescript": "^6.0.3"
   }
 }

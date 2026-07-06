@@ -1,4 +1,4 @@
-# 📅 jQuery Event Calendar (v2.0.2)
+# 📅 jQuery Event Calendar
 
 [![npm version](https://img.shields.io/npm/v/@gpsoftware/jquery-event-calendar.svg?color=blue)](https://www.npmjs.com/package/@gpsoftware/jquery-event-calendar)
 [![npm downloads](https://img.shields.io/npm/dt/@gpsoftware/jquery-event-calendar.svg)](https://www.npmjs.com/package/@gpsoftware/jquery-event-calendar)
@@ -113,9 +113,24 @@ $('#myCalendar').eventCalendar({
 
 #### Theming & Dark Mode (CSS Native Variables)
 
-Version 2.0+ adopts CSS Custom Properties (`:root` variables) for styling. This makes the calendar incredibly easy to theme without needing to compile SCSS!
+Version 2.0+ adopts CSS Custom Properties (`:root` variables) for styling. This makes the calendar easy to theme without needing to compile SCSS!
 
 **Dark Mode is supported out-of-the-box.** The calendar automatically detects the user's OS preferences `(prefers-color-scheme: dark)` and flips the color palette seamlessly.
+
+**How to force a mode**
+
+If you want to force a mode regardless the local OS configuration, you can use this js code:
+
+```JavaScript
+// Toggle theme and enforce it globally via data attribute
+const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+document.documentElement.setAttribute('data-theme', newTheme);
+
+// Toggle styles for the demo page background
+$('body').toggleClass('force-dark', newTheme === 'dark');
+```
+
+**Custom theme**
 
 If you want to create a custom theme or integrate the calendar into your brand colors, simply override the CSS variables in your own stylesheet:
 

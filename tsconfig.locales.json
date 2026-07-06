@@ -1,13 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "rootDir": "./src/i18n",
-    "outDir": "./dist/locales",
-    "declaration": false
+    "noEmit": true
   },
   "include": [
     "src/i18n/**/*",
-    "dist/umd/jquery.eventCalendar.d.ts"
-  ],
-  "exclude": []
+    "src/types.ts"
+  ]
 }

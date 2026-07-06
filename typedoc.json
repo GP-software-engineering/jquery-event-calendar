@@ -1,0 +1,14 @@
+{
+  "entryPoints": [
+    "src/types.ts",
+    "src/EventCalendarInstance.ts"
+  ],
+  "out": "docs",
+  "name": "jQuery Event Calendar API",
+  "readme": "README.md",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "theme": "default",
+  "hideGenerator": true
+}

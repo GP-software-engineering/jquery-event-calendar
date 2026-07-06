@@ -1,13 +1,14 @@
 /*!
 	jquery.eventCalendar.js
-	version: 2.0.3
 */
+
+import { II18n } from '../types';
 
 if (!(window as any).eventCalendar_i18n) {
 	(window as any).eventCalendar_i18n = {};
 }
 
-(window as any).eventCalendar_i18n['fr-FR'] = <EventCalendar.II18n>{
+(window as any).eventCalendar_i18n['fr-FR'] = <II18n>{
 	locale: "fr",
 	monthNames: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
 	monthNamesShort: ["Janv.", "Févr.", "Mars", "Avr.", "Mai", "Juin", "Juil.", "Août", "Sept.", "Oct.", "Nov.", "Déc."],

@@ -254,3 +254,10 @@
     background-color: var(--ec-btn-bg); border-radius: 4px; transition: 0.2s ease all;
     &:hover { opacity: 0.8; text-decoration: none; }
 }
+
+// A11y Focus States
+a:focus-visible, button:focus-visible, [tabindex="0"]:focus-visible {
+    outline: 2px solid var(--ec-today-bg);
+    outline-offset: 2px;
+    border-radius: 2px;
+}

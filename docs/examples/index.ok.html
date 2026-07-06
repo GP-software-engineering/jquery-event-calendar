@@ -84,12 +84,11 @@
             padding: 15px;
             border-radius: 8px;
             display: flex;
-            justify-content: flex-start;
+            justify-content: center;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             align-items: center;
-            flex-wrap: wrap;
         }
 
         .theme-switcher button {
@@ -105,21 +104,6 @@
         .theme-switcher button:hover {
             opacity: 0.8;
         }
-
-        .lang-switcher {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .lang-switcher select {
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid var(--ec-border-color);
-            background: var(--page-bg);
-            color: var(--page-text);
-        }
     </style>
 </head>
 <body>
@@ -132,24 +116,6 @@
         <button id="btn-toggle-dark">Toggle Dark Mode</button>
         <button id="btn-color-purple" style="border-left: 2px solid #6f42c1;">Make Theme Purple</button>
         <button id="btn-color-reset">Reset Theme</button>
-        
-        <div class="lang-switcher">
-            <label for="lang-switcher"><strong>Global Language:</strong></label>
-            <select id="lang-switcher">
-                <option value="en" selected>English</option>
-                <option value="it-IT">Italiano</option>
-                <option value="es-ES">Español</option>
-                <option value="fr-FR">Français</option>
-                <option value="de-DE">Deutsch</option>
-                <option value="pt-PT">Português</option>
-                <option value="zh-CN">简体中文</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="demo-box" style="border-left: 4px solid var(--heading-color); background-color: rgba(19, 141, 165, 0.05);">
-        <h3 style="margin-top: 0; color: var(--heading-color);">⌨️ Accessibility & Keyboard Navigation (A11y)</h3>
-        <p style="margin-bottom: 0;">This plugin is fully accessible. You can use the <strong>Tab</strong> key to navigate through the month arrows and individual calendar days. Press the <strong>Enter</strong> or <strong>Space</strong> key to trigger a click (e.g., change the month or reveal a day's events).</p>
     </div>
 
     <h2>1. Single Calendar Instance</h2>
@@ -188,13 +154,17 @@ $(document).ready(function() {
         // THEME SWITCHER LOGIC
         // ====================================================================
         $('#btn-toggle-dark').on('click', function() {
+            // Check explicit override first, then fallback to OS preference
             let currentTheme = document.documentElement.getAttribute('data-theme');
             if (!currentTheme) {
                 currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
             
+            // Toggle theme and enforce it globally via data attribute
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
+            
+            // Toggle styles for the demo page background
             $('body').toggleClass('force-dark', newTheme === 'dark');
         });
 
@@ -238,68 +208,26 @@ $(document).ready(function() {
         ];
 
         // ====================================================================
-        // PLUGINS INITIALIZATION & I18N LOGIC
+        // PLUGINS INITIALIZATION
         // ====================================================================
-        
-        // Wrap initialization in a function to easily recreate instances on language change
-        function initCalendars(locale = 'en', i18nConfig = null) {
-            // 1. Destroy existing instances completely
-            $('#single-calendar, #multi-calendar-1, #multi-calendar-2')
-                .empty()
-                .removeData('plugin_eventCalendar');
+        $('#single-calendar').eventCalendar({
+            jsonData: mainEvents,
+            jsonDateFormat: 'human',
+            showDescription: true
+        });
 
-            // 2. Setup base options
-            const baseOptions = {
-                jsonDateFormat: 'human',
-                localeKey: locale
-            };
-            
-            // Inject translation mapping if provided
-            if (i18nConfig) {
-                baseOptions.i18n = i18nConfig;
-            }
+        $('#multi-calendar-1').eventCalendar({
+            jsonData: trackEvents,
+            jsonDateFormat: 'human',
+            showDescription: false,
+            onlyOneDescription: true
+        });
 
-            // 3. Re-initialize all calendars
-            $('#single-calendar').eventCalendar($.extend({}, baseOptions, {
-                jsonData: mainEvents,
-                showDescription: true
-            }));
-
-            $('#multi-calendar-1').eventCalendar($.extend({}, baseOptions, {
-                jsonData: trackEvents,
-                showDescription: false,
-                onlyOneDescription: true
-            }));
-
-            $('#multi-calendar-2').eventCalendar($.extend({}, baseOptions, {
-                jsonData: courseEvents,
-                showDescription: false,
-                onlyOneDescription: true
-            }));
-        }
-
-        // Initial Boot (English)
-        initCalendars('en');
-
-        // Listen for Language Selection Changes
-        $('#lang-switcher').on('change', function() {
-            const locale = $(this).val();
-
-            if (locale === 'en') {
-                initCalendars('en');
-                return;
-            }
-
-            // Fetch specific locale file dynamically
-            $.getScript(`../dist/locales/${locale}.js`, function() {
-                const localizedConfig = window.eventCalendar_i18n[locale];
-                
-                if (localizedConfig) {
-                    initCalendars(locale, localizedConfig);
-                } else {
-                    console.error('Localization configuration not found for:', locale);
-                }
-            });
+        $('#multi-calendar-2').eventCalendar({
+            jsonData: courseEvents,
+            jsonDateFormat: 'human',
+            showDescription: false,
+            onlyOneDescription: true
         });
     });
 </script>

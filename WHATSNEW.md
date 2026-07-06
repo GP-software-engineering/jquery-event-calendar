@@ -1,8 +1,26 @@
+# What's New in v2.1.0
+This release introduces full native accessibility, automated documentation, and End-to-End testing readiness.
+
+### 🌍 Locales (i18n)
+* **Multi language and date/time format supports**: Added Italian, French and other languages and date and time support.
+
+### ♿ Accessibility (A11y)
+* **Screen Reader Support**: Added robust ARIA attributes (`aria-live`, `aria-label`, `role="button"`) dynamically to the DOM. Screen readers now properly announce month changes and day interactions.
+* **Keyboard Navigation**: Full keyboard support implemented. Users can now navigate calendar days and trigger events using `Tab`, `Enter`, and `Space` keys. Added specific `:focus-visible` styling for visual feedback without penalizing mouse users.
+
+### 🛠️ Tooling & Testing
+* **TypeDoc Integration**: Prepared the architecture for automated API documentation generation directly from JSDoc comments.
+* **Playwright E2E**: Bootstrapped End-to-End visual testing to ensure UI integrity across different browsers (Chromium, Firefox, WebKit).
+
+---
+
 # What's New in v2.0.2
 Setup CI/CD workflow and bump version to 2.0.2.
+---
 
 # What's New in v2.0.1
 Just renamed the package to include the organization.
+---
 
 # What's New in v2.0.0
 Version 2.0.0 is a massive architectural overhaul of the jQuery Event Calendar plugin. While the external API and DOM outputs remain strictly 100% isofunctional with previous versions to ensure backward compatibility, the internal engine has been completely rebuilt.

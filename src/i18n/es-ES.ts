@@ -1,19 +1,14 @@
 /*!
 	jquery.eventCalendar.js
-	version: 2.0.3
-	author:
-		Gianpiero Caretti (@gpcaretti)
-	company:
-		GP software engineering
-	url:
-		https://www.gpsoftware.it
 */
+
+import { II18n } from '../types';
 
 if (!(window as any).eventCalendar_i18n) {
 	(window as any).eventCalendar_i18n = {};
 }
 
-(window as any).eventCalendar_i18n['es-ES'] = <EventCalendar.II18n>{
+(window as any).eventCalendar_i18n['es-ES'] = <II18n>{
 	locale: "es",
 	monthNames: [ "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" ],
 	monthNamesShort: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Julio", "Ago", "Sep", "Oct", "Nov", "Dic"],
