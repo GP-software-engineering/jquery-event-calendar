@@ -8,7 +8,9 @@
 > A robust, lightweight, and fully responsive Event Calendar plugin for jQuery. 
 Originally branched from v0.7 by Jaime Fernandez, this plugin has been completely refactored in modern TypeScript using Object-Oriented Programming principles to ensure ease of testing, and maintenance.
 
-### 👉 [Click here to view the Live Demo](https://GP-software-engineering.github.io/jquery-event-calendar-modern/examples/index.html)
+#### 👉 [Documentation and live demo](https://GP-software-engineering.github.io/jquery-event-calendar/)
+#### 👉 [What's new](https://github.com/GP-software-engineering/jquery-event-calendar/blob/main/WHATSNEW.md)
+#### 👉 [Direct liink to the live demo](https://GP-software-engineering.github.io/jquery-event-calendar/examples/index.html)
 
 ---
 
