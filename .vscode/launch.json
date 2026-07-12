@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Edge (Live Server)",
+            "request": "launch",
+            "type": "msedge",
+            "url": "http://localhost:5500/examples/index.html",
+            "webRoot": "${workspaceFolder}",
+            "sourceMaps": true
+        },
+        {
+            "name": "Launch Chrome (Live Server)",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:5500/examples/index.html",
+            "webRoot": "${workspaceFolder}",
+            "sourceMaps": true
+        }
+    ]
+}

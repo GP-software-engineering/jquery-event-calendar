@@ -24,9 +24,10 @@
       "use strict";
       EventCalendarInstance = class {
         /**
-         * Initializes the calendar instance.
-         * @param element The DOM element to attach the calendar to.
-         * @param options Configuration options.
+         * Initializes a new Event Calendar instance.
+         * 
+         * @param element The physical DOM element to attach the calendar to.
+         * @param options The configuration options provided by the user.
          */
         constructor(element, options) {
           this.cachedEvents = null;
@@ -37,7 +38,17 @@
           this.init();
         }
         /**
-         * Merges user-provided options with default plugin options.
+         * Public API method to change the language on the fly without reloading events from the server.
+         * Translations must already be bundled and available in window.eventCalendar_i18n.
+         * 
+         * @param newLocale The new locale string (e.g., 'es-ES' or 'it').
+         */
+        changeLocale(newLocale) {
+          this.applyLocaleAndRender(newLocale, true);
+        }
+        /**
+         * Merges user-provided options with the plugin's default options.
+         * 
          * @param options User-provided options.
          * @returns A deeply merged options object.
          */
@@ -46,30 +57,98 @@
           return $.extend(true, {}, defaults, options);
         }
         /**
-         * Bootstraps the application by rendering the DOM and fetching events.
+         * Bootstraps the application by rendering the initial DOM structure,
+         * attaching event listeners, determining the correct locale, and initializing the UI.
          */
         init() {
-          if (this.options.localeKey) {
-            const localeName = this.options.localeKey.toLowerCase();
-            if (this.options.i18n?.moment) {
-              const loadedLocales = typeof moment.locales === "function" ? moment.locales() : [];
-              if (loadedLocales.indexOf(localeName) >= 0 && typeof moment.updateLocale === "function") {
-                moment.updateLocale(localeName, this.options.i18n.moment);
-              } else {
-                moment.defineLocale(localeName, this.options.i18n.moment);
-              }
-            } else {
-              moment.locale(localeName);
-            }
-          }
           this.buildDOMStructure();
           this.attachEventListeners();
           this.directionLeftMove = this.$wrap.width() || 300;
           $(window).on("resize", () => {
             this.directionLeftMove = this.$wrap.width() || 300;
           });
+          const initialLocale = this.options.locale || navigator.language || navigator.userLanguage || "en-US";
+          this.applyLocaleAndRender(initialLocale, false);
+        }
+        /**
+         * Tries to resolve a given locale string against loaded dictionaries.
+         * Performs an exact match first, then falls back to base language match (e.g., 'it' -> 'it-IT').
+         * 
+         * @param locale Requested locale.
+         * @returns The resolved exact key in the dictionary, or null if unsupported.
+         */
+        resolveLocale(locale) {
+          const globalI18n = window.eventCalendar_i18n || {};
+          if (globalI18n[locale]) {
+            return locale;
+          }
+          const baseLang = locale.split("-")[0].toLowerCase();
+          for (const key in globalI18n) {
+            if (key.toLowerCase().startsWith(baseLang)) {
+              return key;
+            }
+          }
+          return null;
+        }
+        /**
+         * Processes the requested locale and updates the calendar state.
+         * 
+         * @param requestedLocale The target locale string.
+         * @param isRuntimeChange True if triggered manually after init; false if during initialization.
+         */
+        applyLocaleAndRender(requestedLocale, isRuntimeChange) {
+          const globalI18n = window.eventCalendar_i18n || {};
+          const resolvedLocale = this.resolveLocale(requestedLocale);
+          if (!resolvedLocale) {
+            console.warn(`[EventCalendar] Locale '${requestedLocale}' not found.`);
+            const $loading = this.$wrap.find(".eventCalendar-loading");
+            $loading.text("Language not found").addClass("error").show();
+            setTimeout(() => {
+              $loading.fadeOut().removeClass("error");
+            }, 3e3);
+            if (!isRuntimeChange) {
+              const fallback = globalI18n["en-US"] ? "en-US" : Object.keys(globalI18n)[0];
+              if (fallback) {
+                this.applyActualLocale(fallback, globalI18n[fallback]);
+              }
+            }
+            return;
+          }
+          this.applyActualLocale(resolvedLocale, globalI18n[resolvedLocale]);
+        }
+        /**
+         * Physically applies the translation data, configures Moment.js, and redraws the UI.
+         * 
+         * @param localeKey Exact key in the dictionary (e.g. 'it-IT').
+         * @param i18nData Translation data object.
+         */
+        applyActualLocale(localeKey, i18nData) {
+          this.options.locale = localeKey;
+          this.options.i18n = i18nData;
+          const momentLocaleCode = (i18nData.locale || localeKey).toLowerCase();
+          if (i18nData.moment) {
+            const loadedLocales = typeof moment.locales === "function" ? moment.locales() : [];
+            if (loadedLocales.indexOf(momentLocaleCode) >= 0 && typeof moment.updateLocale === "function") {
+              moment.updateLocale(momentLocaleCode, i18nData.moment);
+            } else {
+              moment.defineLocale(momentLocaleCode, i18nData.moment);
+            }
+          } else {
+            moment.locale(momentLocaleCode);
+          }
+          if (i18nData.moment && i18nData.moment.week && i18nData.moment.week.dow === 1) {
+            this.options.startWeekOnMonday = true;
+          } else {
+            this.options.startWeekOnMonday = false;
+          }
+          this.$wrap.find(".eventCalendar-slider").empty();
           this.renderMonth("current");
-          this.fetchAndRenderEvents();
+          if (this.cachedEvents) {
+            this.renderEventsList(this.cachedEvents);
+            this.updateSubtitle();
+          } else {
+            this.fetchAndRenderEvents();
+          }
         }
         /**
          * Constructs the main HTML skeleton inside the wrapper element.
@@ -102,7 +181,9 @@
             this.state = { ...this.state, day, direction: "day" };
             this.fetchAndRenderEvents();
             if (this.options.callbacks?.changeDay) {
-              this.options.callbacks.changeDay(new Date(this.state.year, this.state.month, day));
+              this.options.callbacks.changeDay(
+                new Date(this.state.year, this.state.month, day)
+              );
             }
           });
           this.$wrap.on("click", ".eventCalendar-eventTitle", (e) => {
@@ -113,7 +194,9 @@
                 const url = $(e.currentTarget).attr("href");
                 const target = $(e.currentTarget).attr("target") || "_self";
                 const gotoTxt = this.options.i18n?.txt_GoToEventUrl || "Go to event";
-                $desc.append(`<a href="${url}" target="${target}" class="bt">${gotoTxt}</a>`);
+                $desc.append(
+                  `<a href="${url}" target="${target}" class="bt">${gotoTxt}</a>`
+                );
               }
               if ($desc.is(":visible")) {
                 $desc.slideUp();
@@ -125,12 +208,16 @@
               }
             }
           });
-          this.$wrap.on("keydown", '[name="arrow"], li[id^="dayList_"] a, .eventCalendar-eventTitle', (e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              $(e.currentTarget).trigger("click");
+          this.$wrap.on(
+            "keydown",
+            '[name="arrow"], li[id^="dayList_"] a, .eventCalendar-eventTitle',
+            (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                $(e.currentTarget).trigger("click");
+              }
             }
-          });
+          );
         }
         /**
          * Animates the transition between months.
@@ -141,12 +228,16 @@
           const moveOperator = direction === "next" ? "-=" : "+=";
           const moveOpacity = this.options.moveOpacity ?? 0.15;
           const moveSpeed = this.options.moveSpeed ?? 500;
-          this.$wrap.find(".eventCalendar-monthWrap.eventCalendar-oldMonth").animate({
-            opacity: moveOpacity,
-            left: `${moveOperator}${this.directionLeftMove}`
-          }, moveSpeed, function() {
-            $(this).remove();
-          });
+          this.$wrap.find(".eventCalendar-monthWrap.eventCalendar-oldMonth").animate(
+            {
+              opacity: moveOpacity,
+              left: `${moveOperator}${this.directionLeftMove}`
+            },
+            moveSpeed,
+            function() {
+              $(this).remove();
+            }
+          );
         }
         /**
          * Builds and renders the grid for the requested month.
@@ -162,7 +253,9 @@
           }
           this.state.year = date.getFullYear();
           this.state.month = date.getMonth();
-          const monthTitle = moment(new Date(this.state.year, this.state.month, 1)).format("MMMM YYYY");
+          const monthTitle = moment(
+            new Date(this.state.year, this.state.month, 1)
+          ).format("MMMM YYYY");
           const $newMonthWrap = $(`
             <div class='eventCalendar-monthWrap eventCalendar-currentMonth'>
                 <div class='eventCalendar-currentTitle'>
@@ -182,7 +275,15 @@
           const $daysList = $newMonthWrap.find(".eventCalendar-daysList");
           if (this.options.showDayAsWeeks) {
             $daysList.addClass("showDayNames");
-            let dayNames = this.options.i18n?.dayNamesShort || ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            let dayNames = this.options.i18n?.dayNamesShort || [
+              "Sun",
+              "Mon",
+              "Tue",
+              "Wed",
+              "Thu",
+              "Fri",
+              "Sat"
+            ];
             if (this.options.startWeekOnMonday) {
               dayNames = [...dayNames.slice(1), dayNames[0]];
             }
@@ -192,29 +293,47 @@
             });
             $daysList.append(dayHeadersHtml);
           }
-          let firstDayOfMonth = new Date(this.state.year, this.state.month, 1).getDay();
+          let firstDayOfMonth = new Date(
+            this.state.year,
+            this.state.month,
+            1
+          ).getDay();
           if (this.options.startWeekOnMonday) {
             firstDayOfMonth = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
           }
           if (this.options.showDayAsWeeks) {
-            const prevMonthDays = new Date(this.state.year, this.state.month, 0).getDate();
+            const prevMonthDays = new Date(
+              this.state.year,
+              this.state.month,
+              0
+            ).getDate();
             for (let i = 0; i < firstDayOfMonth; i++) {
               const dayNum = prevMonthDays - firstDayOfMonth + 1 + i;
-              $daysList.append(`<li class='eventCalendar-day eventCalendar-empty'><span class='eventCalendar-empty-date'>${dayNum}</span></li>`);
+              $daysList.append(
+                `<li class='eventCalendar-day eventCalendar-empty'><span class='eventCalendar-empty-date'>${dayNum}</span></li>`
+              );
             }
           }
-          const daysInMonth = new Date(this.state.year, this.state.month + 1, 0).getDate();
+          const daysInMonth = new Date(
+            this.state.year,
+            this.state.month + 1,
+            0
+          ).getDate();
           const currentDay = (/* @__PURE__ */ new Date()).getDate();
           const isCurrentMonth = date.getMonth() === (/* @__PURE__ */ new Date()).getMonth() && date.getFullYear() === (/* @__PURE__ */ new Date()).getFullYear();
           for (let day = 1; day <= daysInMonth; day++) {
             const isToday = isCurrentMonth && day === currentDay ? "today" : "";
-            $daysList.append(`<li id='dayList_${day}' rel='${day}' class='eventCalendar-day ${isToday}'><a href='#' tabindex="0" aria-label="${day} ${monthTitle}">${day}</a></li>`);
+            $daysList.append(
+              `<li id='dayList_${day}' rel='${day}' class='eventCalendar-day ${isToday}'><a href='#' tabindex="0" aria-label="${day} ${monthTitle}">${day}</a></li>`
+            );
           }
           if (this.options.showDayAsWeeks) {
             const totalCells = firstDayOfMonth + daysInMonth;
             const tailDays = (7 - totalCells % 7) % 7;
             for (let i = 1; i <= tailDays; i++) {
-              $daysList.append(`<li class='eventCalendar-day eventCalendar-empty'><span class='eventCalendar-empty-date'>${i}</span></li>`);
+              $daysList.append(
+                `<li class='eventCalendar-day eventCalendar-empty'><span class='eventCalendar-empty-date'>${i}</span></li>`
+              );
             }
           }
           $slider.append($newMonthWrap);
@@ -230,7 +349,11 @@
         updateSubtitle() {
           const $subtitle = this.$wrap.find(".eventCalendar-subtitle");
           if (this.state.direction === "day") {
-            const dateObj = new Date(this.state.year, this.state.month, this.state.day);
+            const dateObj = new Date(
+              this.state.year,
+              this.state.month,
+              this.state.day
+            );
             const dateStr = moment(dateObj).format("LL");
             const prevTxt = this.options.i18n?.txt_SpecificEvents_prev || "";
             const afterTxt = this.options.i18n?.txt_SpecificEvents_after || "events:";
@@ -248,7 +371,9 @@
           this.updateSubtitle();
           if (typeof this.options.jsonData === "string") {
             if (!this.options.cacheJson || !this.cachedEvents) {
-              $.getJSON(`${this.options.jsonData}?limit=${this.options.eventsLimit}&year=${this.state.year}&month=${this.state.month}&day=${this.state.day}`).done((data) => {
+              $.getJSON(
+                `${this.options.jsonData}?limit=${this.options.eventsLimit}&year=${this.state.year}&month=${this.state.month}&day=${this.state.day}`
+              ).done((data) => {
                 this.cachedEvents = data;
                 this.renderEventsList(data);
               }).fail(() => {
@@ -283,7 +408,9 @@
           });
           if (htmlEvents.length === 0) {
             const noEventsTxt = this.options.i18n?.txt_noEvents || "No events";
-            htmlEvents.push(`<li class="eventCalendar-noEvents clearfix"><p>${noEventsTxt}</p></li>`);
+            htmlEvents.push(
+              `<li class="eventCalendar-noEvents clearfix"><p>${noEventsTxt}</p></li>`
+            );
           }
           this.$wrap.find(".eventCalendar-loading").hide();
           const moveSpeed = this.options.moveSpeed ?? 500;
@@ -297,17 +424,23 @@
   var require_jquery_eventCalendar = __commonJS({
     "src/jquery.eventCalendar.ts"() {
       init_EventCalendarInstance();
-      var pluginFn = function(options) {
+      var pluginFn = function(options, ...args) {
         return this.each(function() {
-          if (!$.data(this, "plugin_eventCalendar")) {
-            $.data(this, "plugin_eventCalendar", new EventCalendarInstance(this, options || { jsonData: [] }));
+          let instance = $.data(this, "plugin_eventCalendar");
+          if (!instance) {
+            if (typeof options === "string") return;
+            instance = new EventCalendarInstance(this, options || { jsonData: [] });
+            $.data(this, "plugin_eventCalendar", instance);
+          } else if (typeof options === "string") {
+            if (options === "changeLocale" && args.length > 0) {
+              instance.changeLocale(args[0]);
+            }
           }
         });
       };
       pluginFn.options = {
         jsonData: [],
         eventsLimit: 4,
-        localeKey: "en",
         showTimeOfEvent: true,
         showDayAsWeeks: true,
         showDescription: false,
@@ -319,10 +452,3 @@
   });
   require_jquery_eventCalendar();
 })();
-/*!
-    jquery.eventCalendar.js
-    version: 2.1.0
-    author: Gianpiero Caretti (@gpcaretti) / Refactored
-    company: GP software engineering
-    url: https://www.gpsoftware.it
-*/

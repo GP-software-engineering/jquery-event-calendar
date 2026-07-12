@@ -5,21 +5,24 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-> A robust, lightweight, and fully responsive Event Calendar plugin for jQuery. 
-Originally branched from v0.7 by Jaime Fernandez, this plugin has been completely refactored in modern TypeScript using Object-Oriented Programming principles to ensure ease of testing, and maintenance.
+> A robust, lightweight, and fully responsive Event Calendar plugin for jQuery.
+> Originally branched from v0.7 by Jaime Fernandez, this plugin has been completely refactored in modern TypeScript using Object-Oriented Programming principles to ensure ease of testing, and maintenance.
 
 #### 👉 [Documentation and live demo](https://GP-software-engineering.github.io/jquery-event-calendar/)
+
 #### 👉 [What's new](https://github.com/GP-software-engineering/jquery-event-calendar/blob/main/WHATSNEW.md)
+
 #### 👉 [Direct liink to the live demo](https://GP-software-engineering.github.io/jquery-event-calendar/examples/index.html)
 
 ---
 
 ## ✨ Features
+
 * **JSON Driven**: Load events statically via arrays or dynamically via AJAX.
 * **Localization Support**: Easily extensible `i18n` configurations.
 * **Responsive**: Automatically adapts to container widths.
-* **Customizable Styles**: Uses CSS Custom Properties (`:root` variables) for styling
-* **No Breaking UI Changes**: Drop-in replacement for older versions.
+* **Customizable Styles**: Uses CSS Custom Properties (`:root` variables) for styling.
+* **Keyboard Accessible**: Fully navigable via Tab, Enter, and Space keys.
 
 ## 🚀 Installation
 
@@ -51,28 +54,6 @@ You can use the pre-compiled CSS from the `dist/css` folder, or import the SCSS 
 <link rel="stylesheet" href="dist/css/eventCalendar.css">
 ```
 
-🌍 **Internationalization (i18n)**
-
-jQuery Event Calendar comes with built-in support for localization. The package includes translation files in the `dist/lcales/` directory.
-
-To use a different language, include the localized script *after* the main plugin script and pass it into the configuration:
-
-```html
-<script src="dist/umd/jquery.eventCalendar.js"></script>
-<script src="dist/locales/it-IT.js"></script>
-
-<script>
-  $(document).ready(function() {
-    $("#calendar-wrapper").eventCalendar({
-      jsonData: myEvents,
-      // Pass the specific locale key and the i18n object loaded in the window
-      localeKey: 'it-IT',
-      i18n: window.eventCalendar_i18n['it-IT']
-    });
-  });
-</script>
-```
-
 ## 🛠️ Quick Start
 
 Initialize the calendar by targeting an empty `<div>` and passing your options.
@@ -101,16 +82,40 @@ $('#myCalendar').eventCalendar({
 ```
 
 #### Asynchronous Loading (AJAX)
+
 If you pass a URL string instead of an array, the plugin will make a GET request to your server. It automatically appends current calendar state parameters so your backend can return paginated data:
 
-	GET /api/events?limit=4&year=2024&month=11&day=0
-
+```
+GET /api/events?limit=4&year=2024&month=11&day=0
+```
 
 ```JavaScript
 $('#myCalendar').eventCalendar({
     jsonData: "/api/events",
     cacheJson: false // Set to false to trigger a new AJAX call every time the user changes the month
 });
+```
+
+#### 🌍 **Internationalization (i18n)**
+
+jQuery Event Calendar comes with built-in support for localization. The package includes translation files in the `dist/lcales/` directory.
+
+To use a different language, include the localized script *after* the main plugin script and pass it into the configuration:
+
+```html
+<script src="dist/umd/jquery.eventCalendar.js"></script>
+<script src="dist/locales/it-IT.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $("#calendar-wrapper").eventCalendar({
+      jsonData: myEvents,
+      // Pass the specific locale key and the i18n object loaded in the window
+      localeKey: 'it-IT',
+      i18n: window.eventCalendar_i18n['it-IT']
+    });
+  });
+</script>
 ```
 
 #### Theming & Dark Mode (CSS Native Variables)
@@ -167,3 +172,4 @@ If you want to contribute or modify the source:
 4. Run `npm run test` to execute the Jest test suites.
 
 Maintained with ❤️ by GP Software Engineering.
+

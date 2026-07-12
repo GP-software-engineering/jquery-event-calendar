@@ -1,4 +1,60 @@
-"use strict";(()=>{var n=(o,e)=>()=>{try{return e||o((e={exports:{}}).exports,e),e.exports}catch(t){throw e=0,t}};var r=n(()=>{window.eventCalendar_i18n||(window.eventCalendar_i18n={});window.eventCalendar_i18n["es-ES"]={locale:"es",monthNames:["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"],monthNamesShort:["Ene","Feb","Mar","Abr","May","Jun","Julio","Ago","Sep","Oct","Nov","Dic"],dayNames:["Domingo","Lunes","Martes","Mi\xE9rcoles","Jueves","Viernes","Sabado"],dayNamesShort:["Dom","Lun","Mar","Mie","Jue","Vie","Sab"],txt_noEvents:"No hay eventos para este periodo",txt_SpecificEvents_prev:"",txt_SpecificEvents_after:"eventos:",txt_next:"siguiente",txt_prev:"anterior",txt_NextEvents:"Pr\xF3ximos eventos:",txt_GoToEventUrl:"Ir al evento",txt_loading:"un momento por favor...",txt_errorLoading:"Error al cargar los eventos",txt_undefinedDate:"fecha no determinata",moment:{months:["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"],monthsShort:["Ene","Feb","Mar","Abr","May","Jun","Julio","Ago","Sep","Oct","Nov","Dic"],weekdays:["Domingo","Lunes","Martes","Mi\xE9rcoles","Jueves","Viernes","Sabado"],weekdaysShort:["Dom","Lun","Mar","Mie","Jue","Vie","Sab"],weekdaysMin:["Do","Lu","Ma","Mi","Ju","Vi","Sa"],longDateFormat:{LT:"H:mm",LTS:"LT:ss",L:"DD/MM/YYYY",LL:"D [de] MMMM [de] YYYY",LLL:"D [de] MMMM [de] YYYY LT",LLLL:"dddd, D [de] MMMM [de] YYYY LT"},week:{dow:1,doy:4}}}});r();})();
+"use strict";
+(() => {
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __commonJS = (cb, mod) => function __require() {
+    try {
+      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    } catch (e) {
+      throw mod = 0, e;
+    }
+  };
+
+  // src/i18n/es-ES.ts
+  var require_es_ES = __commonJS({
+    "src/i18n/es-ES.ts"() {
+      if (!window.eventCalendar_i18n) {
+        window.eventCalendar_i18n = {};
+      }
+      window.eventCalendar_i18n["es-ES"] = {
+        locale: "es",
+        monthNames: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+        monthNamesShort: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Julio", "Ago", "Sep", "Oct", "Nov", "Dic"],
+        dayNames: ["Domingo", "Lunes", "Martes", "Mi\xE9rcoles", "Jueves", "Viernes", "Sabado"],
+        dayNamesShort: ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
+        txt_noEvents: "No hay eventos para este periodo",
+        txt_SpecificEvents_prev: "",
+        txt_SpecificEvents_after: "eventos:",
+        txt_next: "siguiente",
+        txt_prev: "anterior",
+        txt_NextEvents: "Pr\xF3ximos eventos:",
+        txt_GoToEventUrl: "Ir al evento",
+        txt_loading: "un momento por favor...",
+        txt_errorLoading: "Error al cargar los eventos",
+        txt_undefinedDate: "fecha no determinata",
+        moment: {
+          "months": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+          "monthsShort": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Julio", "Ago", "Sep", "Oct", "Nov", "Dic"],
+          "weekdays": ["Domingo", "Lunes", "Martes", "Mi\xE9rcoles", "Jueves", "Viernes", "Sabado"],
+          "weekdaysShort": ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
+          "weekdaysMin": ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"],
+          "longDateFormat": {
+            "LT": "H:mm",
+            "LTS": "LT:ss",
+            "L": "DD/MM/YYYY",
+            "LL": "D [de] MMMM [de] YYYY",
+            "LLL": "D [de] MMMM [de] YYYY LT",
+            "LLLL": "dddd, D [de] MMMM [de] YYYY LT"
+          },
+          "week": {
+            "dow": 1,
+            "doy": 4
+          }
+        }
+      };
+    }
+  });
+  require_es_ES();
+})();
 /*!
 	jquery.eventCalendar.js
 */

@@ -44,9 +44,13 @@ export interface II18n {
  * Configuration options for initializing the EventCalendar plugin.
  */
 export interface IEventCalendarOptions {
+    /** Array of events or a URL string to fetch events via AJAX. */
     jsonData: IEvent[] | string;
+    /** Cache JSON results to avoid multiple AJAX calls for the same month. */
     cacheJson?: boolean;
-    localeKey?: string;
+    /** Locale string (e.g., 'en-US', 'it-IT'). Defaults to browser language if omitted. */
+    locale?: string;
+    /** Internal i18n object. Do not set this manually. */
     i18n?: II18n;
     eventsLimit?: number;
     showTimeOfEvent?: boolean;
@@ -83,11 +87,10 @@ export interface ICalendarState {
  * Extends jQuery plugin structure to include default options.
  */
 export interface IEventCalendarPlugin {
-    (options?: IEventCalendarOptions): JQuery;
+    (options?: IEventCalendarOptions | string, ...args: any[]): JQuery;
     options: IEventCalendarOptions;
 }
 
-// Attach the plugin interface to the global JQuery object
 declare global {
     interface JQuery {
         eventCalendar: IEventCalendarPlugin;

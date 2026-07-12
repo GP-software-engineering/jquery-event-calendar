@@ -1,4 +1,60 @@
-"use strict";(()=>{var r=(n,e)=>()=>{try{return e||n((e={exports:{}}).exports,e),e.exports}catch(t){throw e=0,t}};var a=r(()=>{window.eventCalendar_i18n||(window.eventCalendar_i18n={});window.eventCalendar_i18n["fr-FR"]={locale:"fr",monthNames:["Janvier","F\xE9vrier","Mars","Avril","Mai","Juin","Juillet","Ao\xFBt","Septembre","Octobre","Novembre","D\xE9cembre"],monthNamesShort:["Janv.","F\xE9vr.","Mars","Avr.","Mai","Juin","Juil.","Ao\xFBt","Sept.","Oct.","Nov.","D\xE9c."],dayNames:["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"],dayNamesShort:["Dim.","Lun.","Mar.","Mer.","Jeu.","Ven.","Sam."],txt_noEvents:"Aucun \xE9v\xE9nement pour cette p\xE9riode",txt_SpecificEvents_prev:"\xC9v\xE9nements du",txt_SpecificEvents_after:":",txt_next:"suivant",txt_prev:"pr\xE9c\xE9dent",txt_NextEvents:"Prochains \xE9v\xE9nements :",txt_GoToEventUrl:"Aller \xE0 l'\xE9v\xE9nement",txt_loading:"Chargement...",txt_errorLoading:"Erreur lors du chargement des \xE9v\xE9nements",txt_undefinedDate:"Date ind\xE9termin\xE9e",moment:{months:["janvier","f\xE9vrier","mars","avril","mai","juin","juillet","ao\xFBt","septembre","octobre","novembre","d\xE9cembre"],monthsShort:["janv.","f\xE9vr.","mars","avr.","mai","juin","juil.","ao\xFBt","sept.","oct.","nov.","d\xE9c."],weekdays:["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"],weekdaysShort:["dim.","lun.","mar.","mer.","jeu.","ven.","sam."],weekdaysMin:["di","lu","ma","me","je","ve","sa"],longDateFormat:{LT:"HH:mm",LTS:"HH:mm:ss",L:"DD/MM/YYYY",LL:"D MMMM YYYY",LLL:"D MMMM YYYY HH:mm",LLLL:"dddd D MMMM YYYY HH:mm"},week:{dow:1,doy:4}}}});a();})();
+"use strict";
+(() => {
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __commonJS = (cb, mod) => function __require() {
+    try {
+      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    } catch (e) {
+      throw mod = 0, e;
+    }
+  };
+
+  // src/i18n/fr-FR.ts
+  var require_fr_FR = __commonJS({
+    "src/i18n/fr-FR.ts"() {
+      if (!window.eventCalendar_i18n) {
+        window.eventCalendar_i18n = {};
+      }
+      window.eventCalendar_i18n["fr-FR"] = {
+        locale: "fr",
+        monthNames: ["Janvier", "F\xE9vrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Ao\xFBt", "Septembre", "Octobre", "Novembre", "D\xE9cembre"],
+        monthNamesShort: ["Janv.", "F\xE9vr.", "Mars", "Avr.", "Mai", "Juin", "Juil.", "Ao\xFBt", "Sept.", "Oct.", "Nov.", "D\xE9c."],
+        dayNames: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+        dayNamesShort: ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."],
+        txt_noEvents: "Aucun \xE9v\xE9nement pour cette p\xE9riode",
+        txt_SpecificEvents_prev: "\xC9v\xE9nements du",
+        txt_SpecificEvents_after: ":",
+        txt_next: "suivant",
+        txt_prev: "pr\xE9c\xE9dent",
+        txt_NextEvents: "Prochains \xE9v\xE9nements :",
+        txt_GoToEventUrl: "Aller \xE0 l'\xE9v\xE9nement",
+        txt_loading: "Chargement...",
+        txt_errorLoading: "Erreur lors du chargement des \xE9v\xE9nements",
+        txt_undefinedDate: "Date ind\xE9termin\xE9e",
+        moment: {
+          "months": ["janvier", "f\xE9vrier", "mars", "avril", "mai", "juin", "juillet", "ao\xFBt", "septembre", "octobre", "novembre", "d\xE9cembre"],
+          "monthsShort": ["janv.", "f\xE9vr.", "mars", "avr.", "mai", "juin", "juil.", "ao\xFBt", "sept.", "oct.", "nov.", "d\xE9c."],
+          "weekdays": ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"],
+          "weekdaysShort": ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
+          "weekdaysMin": ["di", "lu", "ma", "me", "je", "ve", "sa"],
+          "longDateFormat": {
+            "LT": "HH:mm",
+            "LTS": "HH:mm:ss",
+            "L": "DD/MM/YYYY",
+            "LL": "D MMMM YYYY",
+            "LLL": "D MMMM YYYY HH:mm",
+            "LLLL": "dddd D MMMM YYYY HH:mm"
+          },
+          "week": {
+            "dow": 1,
+            "doy": 4
+          }
+        }
+      };
+    }
+  });
+  require_fr_FR();
+})();
 /*!
 	jquery.eventCalendar.js
 */

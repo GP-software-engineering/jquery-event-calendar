@@ -1,0 +1,13 @@
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+# 1. TAB per JavaScript, TypeScript, CSS, SCSS e LESS
+[[*.{js,jsx,ts,tsx,css,scss,less,html,xml,md}]]
+indent_style = tab
+indent_size = 4
+
+[*]
+prettier_bracket_spacing = true
