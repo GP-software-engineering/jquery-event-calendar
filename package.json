@@ -40,7 +40,8 @@
     "build": "npm-run-all clean build:css build:types build:umd minify:umd build:esm build:locales build:version copy:docs",
     "build:docs": "typedoc && node -e \"const fs = require('fs'); fs.cpSync('examples', 'docs/examples', { recursive: true }); fs.cpSync('dist', 'docs/dist', { recursive: true });\"",
     "test": "jest",
-    "watch": "esbuild src/jquery.eventCalendar.ts --bundle --sourcemap --outfile=dist/umd/jquery.eventCalendar.js --format=iife --external:jquery --external:moment --watch"
+    "watch": "esbuild src/jquery.eventCalendar.ts --bundle --sourcemap --outfile=dist/umd/jquery.eventCalendar.js --format=iife --external:jquery --external:moment --watch",
+    "release": "node scripts/release.js"
   },
   "keywords": [
     "jquery",
