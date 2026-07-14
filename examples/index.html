@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>jQuery Event Calendar - Examples</title>
+    <title>jQuery Event Calendar - Examples v2.3.1</title>
     
     <link rel="stylesheet" href="../dist/css/eventCalendar.css">
     
@@ -25,17 +25,13 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* MANUAL DARK MODE OVERRIDES 
-           We inject these specific variables to force Dark Mode 
-           on the page and on the calendars without changing the OS settings.
-        */
+        /* MANUAL DARK MODE OVERRIDES */
         body.force-dark {
             --page-bg: #121212;
             --page-text: #e0e0e0;
             --box-bg: #1e1e1e;
             --heading-color: #5bc0de;
             
-            /* Overriding Plugin CSS Variables manually */
             --ec-bg-color: #1e1e1e;
             --ec-text-color: #d4d4d4;
             --ec-border-color: #444444;
@@ -78,7 +74,6 @@
         }
         .calendar-column { flex: 1; min-width: 300px; }
 
-        /* Toolbar Styling */
         .theme-switcher {
             background: var(--box-bg);
             padding: 15px;
@@ -120,15 +115,24 @@
             background: var(--page-bg);
             color: var(--page-text);
         }
+        
+        /* Simulating Legacy CSS for the time tag */
+        .eventCalendar-list li time {
+            font-size: 0.85em;
+            color: var(--heading-color);
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>jQuery Event Calendar Demonstration</h1>
+    <h1>jQuery Event Calendar Demonstration (v2.3.1)</h1>
 
     <div class="theme-switcher">
-        <strong>Try CSS Variables & Dark Mode:</strong>
+        <strong>Options:</strong>
         <button id="btn-toggle-dark">Toggle Dark Mode</button>
         <button id="btn-color-purple" style="border-left: 2px solid #6f42c1;">Make Theme Purple</button>
         <button id="btn-color-reset">Reset Theme</button>
@@ -137,44 +141,39 @@
             <label for="lang-switcher"><strong>Global Language:</strong></label>
             <select id="lang-switcher">
                 <option value="en-US" selected>English</option>
-                <option value="it">Italiano (fallback to it-IT)</option>
+                <option value="it">Italiano</option>
                 <option value="es-ES">Español</option>
                 <option value="fr-FR">Français</option>
                 <option value="de-DE">Deutsch</option>
                 <option value="pt-PT">Português</option>
                 <option value="zh-CN">简体中文</option>
-                <option value="xx-XX">Fake Lang (Error Test)</option>
+                <option value="xx-XX">Fake Lang (Fallback)</option>
             </select>
         </div>
 
-        <button id="btn-destroy" style="border-left: 2px solid red; margin-left: 10px;">Destroy Main Calendar</button>
+        <button id="btn-destroy" style="border-left: 2px solid red; margin-left: 10px;">Destroy First</button>
     </div>
 
-    <div class="demo-box" style="border-left: 4px solid var(--heading-color); background-color: rgba(19, 141, 165, 0.05);">
-        <h3 style="margin-top: 0; color: var(--heading-color);">⌨️ Accessibility & Keyboard Navigation (A11y)</h3>
-        <p style="margin-bottom: 0;">This plugin is fully accessible. You can use the <strong>Tab</strong> key to navigate through the month arrows and individual calendar days. Press the <strong>Enter</strong> or <strong>Space</strong> key to trigger a click (e.g., change the month or reveal a day's events).</p>
-    </div>
-
-    <h2>1. Single Calendar Instance</h2>
+    <h2>1. Custom Template Builder</h2>
     <div class="demo-box">
-        <p>This section displays a standard single calendar instance with custom dynamically generated events.</p>
+        <p>This section displays a standard single calendar instance leveraging the <code>eventTemplateBuilder</code> option to recreate the classic legacy HTML output (including the `time` tag) and parse internal HTML safely.</p>
         <div id="single-calendar"></div>
     </div>
 
-    <h2>2. Multiple Isolated Instances (Side by Side)</h2>
-    <p>Thanks to the new Object-Oriented class architecture, multiple calendars can coexist on the same page with isolated states and completely different datasets without any conflict.</p>
+    <h2>2. Isolated Instances & Advanced Configs</h2>
+    <p>Multiple calendars coexisting. Calendar B forces the start date strictly to <strong>November 2026</strong> using the newly restored <code>startDate</code> feature.</p>
     
     <div class="calendar-grid">
         <div class="calendar-column">
             <div class="demo-box">
-                <h3>Track Days Schedule</h3>
+                <h3>Track Days (Standard)</h3>
                 <div id="multi-calendar-1"></div>
             </div>
         </div>
         
         <div class="calendar-column">
             <div class="demo-box">
-                <h3>Driving Courses Schedule</h3>
+                <h3>Driving Courses (Starts Nov 2026)</h3>
                 <div id="multi-calendar-2"></div>
             </div>
         </div>
@@ -187,20 +186,18 @@
 <!-- Load the core plugin -->
 <script src="../dist/umd/jquery.eventCalendar.js"></script>
 
-<!-- Load the unified locales bundle containing all supported languages -->
+<!-- Load the unified locales bundle -->
 <script src="../dist/locales/all.min.js"></script>
 
 <script>
 $(document).ready(function() {
-    // ====================================================================
-    // THEME SWITCHER LOGIC
-    // ====================================================================
+    
+    // UI Event Listeners
     $('#btn-toggle-dark').on('click', function() {
         let currentTheme = document.documentElement.getAttribute('data-theme');
         if (!currentTheme) {
             currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
-        
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
         $('body').toggleClass('force-dark', newTheme === 'dark');
@@ -218,18 +215,19 @@ $(document).ready(function() {
         document.documentElement.style.removeProperty('--ec-today-bg');
     });
 
-    // ====================================================================
-    // DYNAMIC EVENT GENERATION
-    // ====================================================================
+    // Dynamic Data Generation
     const threeDaysAgo = moment().subtract(3, 'days').format('YYYY-MM-DD 10:00:00');
     const yesterday    = moment().subtract(1, 'days').format('YYYY-MM-DD 15:30:00');
     const today        = moment().format('YYYY-MM-DD 12:00:00');
     const tomorrow     = moment().add(1, 'days').format('YYYY-MM-DD 09:00:00');
     const nextWeek     = moment().add(5, 'days').format('YYYY-MM-DD 16:00:00');
 
+    // Future fixed date to test the startDate parameter
+    const futureDate = "2026-11-15 14:00:00"; 
+
     const mainEvents = [
         { date: threeDaysAgo, title: "Past Track Day Session", description: "This event happened 3 days ago.", isLocked: true },
-        { date: today, title: "Current Maintenance Window", description: "Today's ongoing circuit operations.", isSpecial: true },
+        { date: today, title: "<b>Current Maintenance Window</b>", description: "<i>Today's ongoing circuit operations with parsed HTML.</i>", isSpecial: true },
         { date: tomorrow, title: "Upcoming Advanced Driving Course", description: "Registration opens tomorrow morning." },
         { date: nextWeek, title: "Exclusive Supercar Rally", description: "Future special track event.", isSpecial: true }
     ];
@@ -240,36 +238,43 @@ $(document).ready(function() {
     ];
 
     const courseEvents = [
-        { date: threeDaysAgo, title: "Basic Safety Briefing", description: "Introductory classroom session held 3 days ago." },
-        { date: today, title: "Drift Control Masterclass", description: "Live drifting course running on the wet track today!", isSpecial: true },
-        { date: nextWeek, title: "Pro Racing License Exam", description: "Official theoretical and practical evaluation.", isLocked: false }
+        { date: futureDate, title: "Winter Academy 2026", description: "Advanced driving simulation in extreme conditions." },
+        { date: "2026-11-20 09:00:00", title: "Ice Driving Mastery", description: "Learn to handle rear-wheel drive on pure ice.", isLocked: false }
     ];
-
-    // ====================================================================
-    // PLUGINS INITIALIZATION & I18N LOGIC
-    // ====================================================================
     
-    // SYNC UI WITH BROWSER LANGUAGE:
-    // Since we are omitting the 'locale' option below to test the plugin's auto-detection,
-    // we need to visually update the dropdown to match the browser's language.
     const browserLang = (navigator.language || navigator.userLanguage || "en-US").toLowerCase();
     $('#lang-switcher option').each(function() {
         const optionVal = $(this).val().toLowerCase();
-        // Check if browser lang starts with the option value (e.g., 'it-IT' starts with 'it')
-        if (browserLang.startsWith(optionVal.split('-')[0])) {
-            $(this).prop('selected', true);
-        }
+        if (browserLang.startsWith(optionVal.split('-')[0])) $(this).prop('selected', true);
     });
 
-    // Initialize standard instances. 
-    // By omitting the 'locale' property, it defaults to the browser language (falling back to en-US if not found).
+    // 1. Single Calendar using the Custom Template Builder
     $('#single-calendar').eventCalendar({
         jsonData: mainEvents,
         jsonDateFormat: 'human',
-        showDescription: true
-        // locale: 'en-US' // Omitted to test auto-detection!
+        showDescription: true,
+        // The builder reconstructs the legacy DOM node (<time>) and bypasses native HTML escaping
+        eventTemplateBuilder: function(event, i18n) {
+            let eventDate = moment(event.date, "YYYY-MM-DD HH:mm:ss");
+            let eventStringDate = eventDate.isValid() ? eventDate.format('ddd. L') : i18n.txt_undefinedDate;
+            let eventTimeStr = eventDate.isValid() ? eventDate.format('HH:mm') : '';
+            
+            let titleHtml = event.url 
+                ? `<a href="${event.url}" class="eventCalendar-eventTitle clearfix">${event.title}</a>` 
+                : `<span class="eventCalendar-eventTitle clearfix">${event.title}</span>`;
+                
+            let descHtml = event.description ? `<div class="eventCalendar-eventDesc">${event.description}</div>` : '';
+            
+            return `
+                <li class="clearfix">
+                    <time datetime="${event.date}"><em>${eventStringDate}</em> <small>${eventTimeStr}</small></time>
+                    ${titleHtml}
+                    ${descHtml}
+                </li>`;
+        }
     });
 
+    // 2. Multi Calendar 1 (Standard)
     $('#multi-calendar-1').eventCalendar({
         jsonData: trackEvents,
         jsonDateFormat: 'human',
@@ -277,24 +282,22 @@ $(document).ready(function() {
         onlyOneDescription: true
     });
 
+    // 3. Multi Calendar 2 (Forced Start Date)
     $('#multi-calendar-2').eventCalendar({
         jsonData: courseEvents,
         jsonDateFormat: 'human',
         showDescription: false,
-        onlyOneDescription: true
+        startDate: "2026-11-01",  // Test the newly restored option!
+        showDaysOfOtherMonths: true // Fills the empty grid cells
     });
 
-    // Easily change locale across all calendars synchronously on dropdown change
     $('#lang-switcher').on('change', function() {
         const selectedLocale = $(this).val();
-        
-        // This will now use the in-memory bundle, handle fallbacks, and reject the "Fake Lang" gracefully.
         $('#single-calendar').eventCalendar('changeLocale', selectedLocale);
         $('#multi-calendar-1').eventCalendar('changeLocale', selectedLocale);
         $('#multi-calendar-2').eventCalendar('changeLocale', selectedLocale);
     });
 
-    // Test the new Memory Safe Destroy feature
     $('#btn-destroy').on('click', function() {
        $('#single-calendar').eventCalendar('destroy');
        $(this).text('Destroyed!').prop('disabled', true);
