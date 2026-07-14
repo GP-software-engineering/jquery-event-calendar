@@ -1,12 +1,20 @@
+# What's New in v2.3.2
+
+This release addresses a bug on small images not displayed when an event was marked with bugs `isSpecial = true `.
+
+---
+
 # What's New in v2.3.1
 
 This release addresses critical bugs introduced during the architectural overhaul and restores full backward compatibility with legacy configuration options.
 
 ### 🐛 Bug Fixes
+
 * **Event Filtering**: Restored the strict event filtering logic. Clicking on a specific day correctly filters and displays only the events for that day, rather than the entire month.
 * **Grid Highlighting**: Fixed an issue where days with events were not properly highlighted on the calendar grid. Resolved DOM ID collisions by safely targeting cells via the `rel` attribute.
 
 ### ⏪ Legacy Compatibility
+
 * **Restored Options**: Brought back `startDate` and `dateTimeOffset` configuration options to ensure seamless updates for legacy implementations.
 * **Cleanup**: Removed the phantom `changeMonth` callback from default options as it was never internally triggered.
 
