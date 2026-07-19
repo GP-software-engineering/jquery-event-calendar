@@ -1,3 +1,7 @@
+# What's New in v2.4.0
+
+This release adds the `setEvents` method to the plugin to dynamically updates the dataset of the calendar without destroying the DOM structure, increasing the calendar speed.
+
 # What's New in v2.3.2
 
 This release addresses a bug on small images not displayed when an event was marked with bugs `isSpecial = true `.

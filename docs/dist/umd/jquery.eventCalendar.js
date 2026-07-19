@@ -24,6 +24,11 @@
       "use strict";
       ((GpsEventCalendar2) => {
         class EventCalendarInstance {
+          /**
+           * Initializes a new instance of the EventCalendar plugin.
+           * @param element The target DOM element where the calendar will be rendered.
+           * @param options Configuration options for the calendar instance.
+           */
           constructor(element, options) {
             this.cachedEvents = null;
             this.directionLeftMove = 300;
@@ -34,6 +39,46 @@
             this.state = { year: 0, month: -1, day: 0, direction: "" };
             this.init();
           }
+          /**
+           * Dynamically updates the dataset of the calendar without destroying the DOM structure.
+           * Optionally calculates and navigates directly to the first month containing events.
+           * @param newEvents The new array of events to render.
+           * @param jumpToFirstMonth If true, automatically navigates the calendar view to the first available event month.
+           */
+          setEvents(newEvents, jumpToFirstMonth = true) {
+            this.options.jsonData = newEvents;
+            this.cachedEvents = newEvents;
+            if (jumpToFirstMonth && newEvents && newEvents.length > 0) {
+              this.applyFirstMonthWithEvents(newEvents);
+            }
+            this.$wrap.find(".eventCalendar-slider").empty();
+            this.renderMonth("current");
+            this.renderEventsList(newEvents);
+            this.updateSubtitle();
+          }
+          /**
+           * Changes the active localization language at runtime and refreshes the calendar view.
+           * @param newLocale The new locale string (e.g., 'it-IT' or 'en-US').
+           */
+          changeLocale(newLocale) {
+            this.applyLocaleAndRender(newLocale, true);
+          }
+          /**
+           * Destroys the calendar instance, removes DOM structures, and unbinds all namespaced events.
+           */
+          destroy() {
+            $(window).off(this.eventNamespace);
+            this.$wrap.off(this.eventNamespace);
+            this.$wrap.empty().removeClass("eventCalendar-wrap");
+            this.cachedEvents = null;
+            $.removeData(this.$wrap[0], "plugin_eventCalendar");
+          }
+          // ============================================================================
+          // PRIVATE AND PROTECTED METHODS
+          // ============================================================================
+          /**
+           * Simple method to sanitizes user-provided or external string inputs by (when user not use templates)
+           */
           escapeHtml(unsafe) {
             if (!unsafe) return "";
             return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -66,20 +111,20 @@
               return moment(ts);
             }
           }
-          destroy() {
-            $(window).off(this.eventNamespace);
-            this.$wrap.off(this.eventNamespace);
-            this.$wrap.empty().removeClass("eventCalendar-wrap");
-            this.cachedEvents = null;
-            $.removeData(this.$wrap[0], "plugin_eventCalendar");
-          }
-          changeLocale(newLocale) {
-            this.applyLocaleAndRender(newLocale, true);
-          }
+          /**
+           * Performs a deep merge of custom initialization options over the global plugin defaults.
+           * 
+           * @param options User-provided configuration overrides.
+           * @returns The fully merged configuration object.
+           */
           mergeOptions(options) {
             const defaults = $.fn.eventCalendar.options;
             return $.extend(true, {}, defaults, options);
           }
+          /**
+           * Initializes the core DOM scaffolding, binds event listeners, sets up responsive window
+           * tracking, and triggers the initial render based on the provided or default starting date.
+           */
           init() {
             this.buildDOMStructure();
             this.attachEventListeners();
@@ -98,6 +143,36 @@
             const initialLocale = this.options.locale || navigator.language || navigator.userLanguage || "en-US";
             this.applyLocaleAndRender(initialLocale, false);
           }
+          /**
+           * Scans the provided events array to find the earliest future date containing an event.
+           * If found, updates the internal state (year, month) so the calendar immediately opens
+           * on a month with relevant data instead of an empty current month.
+           * 
+           * @param events The array of available events to scan.
+           */
+          applyFirstMonthWithEvents(events) {
+            if (!this.options.showFirstMonthWithEvents || !events || events.length === 0) return;
+            const eventsWithDate = events.filter((e) => e.date != null);
+            if (eventsWithDate.length === 0) return;
+            let earliestDate = this.extractEventDate(eventsWithDate[0]);
+            for (let i = 1; i < eventsWithDate.length; i++) {
+              const tempDate = this.extractEventDate(eventsWithDate[i]);
+              if (tempDate && earliestDate && tempDate.valueOf() < earliestDate.valueOf()) {
+                earliestDate = tempDate;
+              }
+            }
+            if (!earliestDate || !earliestDate.isValid()) return;
+            const now = moment();
+            if (earliestDate.year() > now.year() || earliestDate.year() === now.year() && earliestDate.month() > now.month()) {
+              this.state.year = earliestDate.year();
+              this.state.month = earliestDate.month();
+              this.state.day = 0;
+            }
+          }
+          /**
+           * Resolves the closest matching locale string against the globally available i18n dictionaries.
+           * Falls back from specific locales (e.g., 'it-IT') to general language codes (e.g., 'it').
+           */
           resolveLocale(locale) {
             const globalI18n = window.GpsEventCalendar?.i18n || {};
             if (globalI18n[locale]) return locale;
@@ -107,24 +182,13 @@
             }
             return null;
           }
-          applyFirstMonthWithEvents(events) {
-            if (!this.options.showFirstMonthWithEvents || !events || events.length === 0) return;
-            const eventsWithDate = events.filter((e) => e.date != null);
-            if (eventsWithDate.length === 0) return;
-            let earliestDate = this.extractEventDate(eventsWithDate[0]);
-            for (let i = 1; i < eventsWithDate.length; i++) {
-              const tempDate = this.extractEventDate(eventsWithDate[i]);
-              if (tempDate.valueOf() < earliestDate.valueOf()) {
-                earliestDate = tempDate;
-              }
-            }
-            const now = moment();
-            if (earliestDate.year() > now.year() || earliestDate.year() === now.year() && earliestDate.month() > now.month()) {
-              this.state.year = earliestDate.year();
-              this.state.month = earliestDate.month();
-              this.state.day = 0;
-            }
-          }
+          /**
+           * Resolves locale dependencies and orchestrates either an initial setup or a runtime language switch.
+           * Handles error feedback if a requested localization dictionary is missing.
+           * 
+           * @param requestedLocale The target locale string to apply.
+           * @param isRuntimeChange Indicates whether this is invoked dynamically after initialization.
+           */
           applyLocaleAndRender(requestedLocale, isRuntimeChange) {
             const globalI18n = window.GpsEventCalendar?.i18n || {};
             const resolvedLocale = this.resolveLocale(requestedLocale);
@@ -143,6 +207,13 @@
             }
             this.applyActualLocale(resolvedLocale, globalI18n[resolvedLocale]);
           }
+          /**
+           * Configures Moment.js with the selected locale, determines first-day-of-week rules,
+           * triggers initial month rendering, and either displays cached data or initiates a network fetch.
+           * 
+           * @param localeKey The verified locale identifier.
+           * @param i18nData The localized strings and formatting rules dictionary.
+           */
           applyActualLocale(localeKey, i18nData) {
             this.options.locale = localeKey;
             this.options.i18n = i18nData;
@@ -172,6 +243,10 @@
               this.fetchAndRenderEvents();
             }
           }
+          /**
+           * Constructs the foundational HTML layout inside the root `$wrap` container,
+           * defining accessibility attributes (`aria-live`), the slider viewport, and the event list wrapper.
+           */
           buildDOMStructure() {
             const loadingTxt = this.options.i18n?.txt_loading || "loading...";
             this.$wrap.addClass("eventCalendar-wrap").html(`
@@ -185,6 +260,10 @@
                 </div>
             `);
           }
+          /**
+           * Binds all interactive DOM handlers using namespaced events to prevent leaking.
+           * Includes support for mouse clicks, keyboard navigation (WCAG accessibility), and touch swipes.
+           */
           attachEventListeners() {
             this.$wrap.on(`click${this.eventNamespace}`, '[name="arrow"]', (e) => {
               e.preventDefault();
@@ -250,6 +329,12 @@
               if (touchEndX > touchStartX + 50) this.changeMonth("prev");
             });
           }
+          /**
+           * Orchestrates the horizontal sliding animation when navigating between months.
+           * Animates the opacity and left position of the old month container before removing it from the DOM.
+           * 
+           * @param direction The navigation direction ('next' or 'prev').
+           */
           changeMonth(direction) {
             this.renderMonth(direction);
             const moveOperator = direction === "next" ? "-=" : "+=";
@@ -266,11 +351,25 @@
               }
             );
           }
+          /**
+           * Complex DOM generation method: calculates and renders the visual calendar grid for a specific month.
+           * 1. Updates internal target dates and handles year/month boundary rollovers.
+           * 2. Appends navigation arrows if rendering the initial view.
+           * 3. Calculates grid alignment based on `startWeekOnMonday`, inserting leading empty cells for offset.
+           * 4. Renders actual days with appropriate accessibility tags (`aria-label`, `aria-selected`).
+           * 5. Fills trailing empty cells to maintain a uniform grid structure.
+           * 
+           * @param monthOrDirection The rendering context ('current', 'next', or 'prev').
+           */
           renderMonth(monthOrDirection) {
             const $slider = this.$wrap.find(".eventCalendar-slider");
             let targetYear = this.state.year > 0 ? this.state.year : (/* @__PURE__ */ new Date()).getFullYear();
             let targetMonth = this.state.month >= 0 ? this.state.month : (/* @__PURE__ */ new Date()).getMonth();
-            this.$wrap.find(".eventCalendar-monthWrap.eventCalendar-currentMonth").removeClass("eventCalendar-currentMonth").addClass("eventCalendar-oldMonth");
+            if (monthOrDirection === "current") {
+              $slider.empty();
+            } else {
+              this.$wrap.find(".eventCalendar-monthWrap.eventCalendar-currentMonth").removeClass("eventCalendar-currentMonth").addClass("eventCalendar-oldMonth");
+            }
             if (monthOrDirection === "next") {
               targetMonth++;
               if (targetMonth > 11) {
@@ -355,6 +454,10 @@
               this.fetchAndRenderEvents();
             }
           }
+          /**
+           * Updates the text of the subtitle above the event list to reflect whether the user
+           * is viewing events for a specifically selected day or viewing general upcoming events.
+           */
           updateSubtitle() {
             const $subtitle = this.$wrap.find(".eventCalendar-subtitle");
             if (this.state.direction === "day" && this.state.day > 0) {
@@ -368,6 +471,10 @@
               $subtitle.text(nextTxt);
             }
           }
+          /**
+           * Fetches event data from a remote JSON URL (if configured as a string) or retrieves
+           * items directly from the in-memory array, caching results when appropriate.
+           */
           fetchAndRenderEvents() {
             this.$wrap.find(".eventCalendar-loading").fadeIn();
             this.updateSubtitle();
@@ -388,6 +495,12 @@
               this.renderEventsList(this.cachedEvents);
             }
           }
+          /**
+           * Iterates through the currently rendered month grid and attaches specific CSS classes
+           * (`dayWithEvents`, `locked`, `special`) to day cells that contain matching events.
+           * 
+           * @param data The array of events to check against the active month grid.
+           */
           markDaysWithEvents(data) {
             const $days = this.$wrap.find(".eventCalendar-currentMonth .eventCalendar-day");
             $days.removeClass("eventCalendar-dayWithEvents dayWithEvents locked special");
@@ -403,11 +516,18 @@
               }
             });
           }
+          /**
+           * Sorts, filters, and generates the markup for the event list displayed below the calendar grid.
+           * Delegates HTML generation to `eventTemplateBuilder` if custom rendering is configured in ASP.NET MVC/Core,
+           * otherwise builds standard escaped HTML links and descriptions.
+           * 
+           * @param data The raw array of events to process and display.
+           */
           renderEventsList(data) {
             const $list = this.$wrap.find(".eventCalendar-list");
-            let htmlEvents = [];
-            let numOfFilteredEvents = 0;
+            const htmlEvents = [];
             const limit = this.options.eventsLimit || 0;
+            let numOfFilteredEvents = 0;
             this.markDaysWithEvents(data);
             const sortedEvents = [...data].sort((a, b) => {
               if (!a.date) return -1;
@@ -484,6 +604,9 @@
             switch (options) {
               case "changeLocale":
                 if (args.length > 0) instance.changeLocale(args[0]);
+                break;
+              case "setEvents":
+                if (args.length > 0) instance.setEvents(args[0], args[1] ?? true);
                 break;
               case "destroy":
                 instance.destroy();

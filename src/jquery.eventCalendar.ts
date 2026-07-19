@@ -21,6 +21,9 @@ const pluginFn = function(this: any, options?: Types.IEventCalendarOptions | str
                 case "changeLocale":
                     if (args.length > 0) instance.changeLocale(args[0]);
                     break;
+                case "setEvents":
+                    if (args.length > 0) instance.setEvents(args[0], args[1] ?? true);
+                    break;
                 case "destroy":
                     instance.destroy();
                     break;
